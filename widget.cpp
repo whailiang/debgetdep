@@ -11,11 +11,11 @@ extern char *deb_name = "";
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
-//    get_dep(deb_name);
-//    download_deb();
-//    ar_deb();
-//    rm_deb();
-//    clear_file();
+    get_dep(deb_name);
+    download_deb();
+    ar_deb();
+    rm_deb();
+    clear_file();
 
     tar_file();
 
