@@ -48,50 +48,37 @@ void Widget::tar_file()
     cp_shell.waitForFinished();
     cp_cmd.clear();
 
-    cp_cmd.append("echo /app/usr/lib >ld.so.conf");
-    cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
-    qDebug()<<"========"<<cp_cmd;
-    cp_cmd.clear();
+    QString filename ="ld.so.conf";
+    QDir dir;
+    if(!dir.exists(deb_name)){
+        dir.mkdir(deb_name);
+    }
+    dir=deb_name;
+    QString path = dir.filePath(filename);
+    QFile file;
+    file.setFileName(path);
 
+    if(file.open(QIODevice::WriteOnly |QIODevice::Text |QIODevice::Append)){
+        file.write("/app/usr/lib\n");
+        file.write("/app/usr/lib/x86_64-linux-gnu\n");
+    }
+    file.close();
 
-
-    cp_cmd.append("echo /app/usr/lib/x86_64-linux-gnu >>ld.so.conf");
-    cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
-    qDebug()<<"========"<<cp_cmd;
-    cp_cmd.clear();
-
-    cp_cmd.append("mkdir ");
+    cp_cmd.append("cp -r usr/ ");
     cp_cmd.append(deb_name);
     cp_shell.start(cp_cmd);
     cp_shell.waitForFinished();
     qDebug()<<"========"<<cp_cmd;
     cp_cmd.clear();
 
-
-    cp_cmd.append("cp ld.so.conf ");
+    cp_cmd.append("cp -r etc/ ");
     cp_cmd.append(deb_name);
     cp_shell.start(cp_cmd);
     cp_shell.waitForFinished();
     qDebug()<<"========"<<cp_cmd;
     cp_cmd.clear();
 
-    cp_cmd.append("cp usr/ ");
-    cp_cmd.append(deb_name);
-    cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
-    qDebug()<<"========"<<cp_cmd;
-    cp_cmd.clear();
-
-    cp_cmd.append("cp etc/ ");
-    cp_cmd.append(deb_name);
-    cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
-    qDebug()<<"========"<<cp_cmd;
-    cp_cmd.clear();
-
-    cp_cmd.append("cp var/ ");
+    cp_cmd.append("cp -r var/ ");
     cp_cmd.append(deb_name);
     cp_shell.start(cp_cmd);
     cp_shell.waitForFinished();
