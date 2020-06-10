@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QList>
+#include "mythread.h"
 
 extern char *deb_name;
 #define MAX_LINE 1024
@@ -31,7 +32,11 @@ public:
     QList<QString> list_dep;
     QStringList list;
 
+    MyThread *download_thread[20];
+
     int num = 0;
+
+
 
 private:
 

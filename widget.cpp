@@ -5,12 +5,15 @@
 #include <QProcess>
 #include <QDir>
 #include <unistd.h>
+#include "mythread.h"
+
 
 extern char *deb_name = "";
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
+
     get_dep(deb_name);
     download_deb();
     ar_deb();
@@ -33,19 +36,19 @@ void Widget::tar_file()
 
     cp_cmd.append("cp -r bin/ usr/");
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(3000);
     cp_cmd.clear();
     cp_cmd.append("cp -r sbin/ usr/");
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(3000);
     cp_cmd.clear();
     cp_cmd.append("cp -r lib/ usr/");
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(3000);
     cp_cmd.clear();
     cp_cmd.append("cp -r lib64/ usr/");
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(3000);
     cp_cmd.clear();
 
     QString filename ="ld.so.conf";
@@ -67,21 +70,21 @@ void Widget::tar_file()
     cp_cmd.append("cp -r usr/ ");
     cp_cmd.append(deb_name);
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(3000);
     qDebug()<<"========"<<cp_cmd;
     cp_cmd.clear();
 
     cp_cmd.append("cp -r etc/ ");
     cp_cmd.append(deb_name);
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(3000);
     qDebug()<<"========"<<cp_cmd;
     cp_cmd.clear();
 
     cp_cmd.append("cp -r var/ ");
     cp_cmd.append(deb_name);
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(3000);
     qDebug()<<"========"<<cp_cmd;
     cp_cmd.clear();
 
@@ -379,22 +382,35 @@ void Widget::download_deb()
 {
     list_dep.insert(0,deb_name);
 
-    QProcess process;
-    QString download_cmd;
-    for(int i = 0; i < list_dep.length();i++){
-        download_cmd.append("apt download ");
-        download_cmd.append(list_dep.at(i));
-        qDebug()<<"----"<<download_cmd;
-        process.start(download_cmd);
-        process.waitForFinished();
-        if(!process.waitForFinished(3000))
-        {
-            qDebug()<<"=============";
+//    int for_num = list_dep.length()/20;
+//    int for_rest = list_dep.length()%20;
+    int i;
+    int count = 0;
+    for (i = 0; i< 20; i++)
+        download_thread[i] =new MyThread();
+    while(1){
+        for(i = 0; i < 20;i++){
+            count ++;
+            if(count == list_dep.length())
+                goto ENDLOOP;
+            download_thread[i]->set_debname(list_dep.at(count));
+            download_thread[i]->start();
         }
-        download_cmd.clear();
-        qDebug()<<"----------"<<i;
+        int finish_num = 0;
+        while(finish_num < 19){
+            finish_num = 0;
+            for(int j = 0;j < 20;j++){
+                if(download_thread[j]->isFinished() == false){
+                    break;
+                }
+                finish_num++;
+            }
+            sleep(1);
+        }
+        qDebug()<<list_dep.length();
+        qDebug()<<"download end";
     }
-    qDebug()<<list_dep.length();
-    qDebug()<<"download end";
+ENDLOOP:
+    qDebug()<<"====";
 }
 
