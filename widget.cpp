@@ -94,7 +94,7 @@ void Widget::tar_file()
     cp_cmd.append(deb_name);
 
     cp_shell.start(cp_cmd);
-    cp_shell.waitForFinished();
+    cp_shell.waitForFinished(-1);
     qDebug()<<"========"<<cp_cmd;
     cp_cmd.clear();
 
@@ -112,7 +112,6 @@ void Widget::del_file(QString filename)
     del_file_shell.start(del_file_cmd);
     del_file_shell.waitForFinished();
     del_file_cmd.clear();
-
 }
 
 void Widget::clear_file()
@@ -256,7 +255,6 @@ void Widget::ar_deb()
     QString control_cmd2;
     QString control_cmd3;
 
-
     for(int j = 0;j<list.length();j++)
     {
         ar_deb_cmd.append("ar -vx ");
@@ -380,21 +378,23 @@ void Widget::get_dep(char *name)
 
 void Widget::download_deb()
 {
-    list_dep.insert(0,deb_name);
+    list_dep.append(deb_name);
 
-//    int for_num = list_dep.length()/20;
-//    int for_rest = list_dep.length()%20;
+    int deb_num = 0;
+
     int i;
     int count = 0;
     for (i = 0; i< 20; i++)
         download_thread[i] =new MyThread();
     while(1){
         for(i = 0; i < 20;i++){
-            count ++;
+
             if(count == list_dep.length())
                 goto ENDLOOP;
             download_thread[i]->set_debname(list_dep.at(count));
             download_thread[i]->start();
+            deb_num++;
+            count ++;
         }
         int finish_num = 0;
         while(finish_num < 19){
@@ -407,10 +407,9 @@ void Widget::download_deb()
             }
             sleep(1);
         }
-        qDebug()<<list_dep.length();
-        qDebug()<<"download end";
     }
 ENDLOOP:
-    qDebug()<<"====";
+    qDebug()<<"download num ====="<<deb_num;
+    qDebug()<<"download end";
 }
 
